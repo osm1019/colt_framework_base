@@ -1013,6 +1013,10 @@ final class DefaultPermissionGrantPolicy {
         grantSystemFixedPermissionsToSystemPackage(pm,"com.google.android.apps.recorder", userId, MICROPHONE_PERMISSIONS,
                 ALWAYS_LOCATION_PERMISSIONS);
 
+ // Pixel Buds
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.apps.wearables.maestro.companion", userId,
+                NEARBY_DEVICES_PERMISSIONS);
+
         // SafetyHub
         grantSystemFixedPermissionsToSystemPackage(pm,"com.google.android.apps.safetyhub", userId, SENSORS_PERMISSIONS,
                 CONTACTS_PERMISSIONS, ALWAYS_LOCATION_PERMISSIONS, MICROPHONE_PERMISSIONS, PHONE_PERMISSIONS);
