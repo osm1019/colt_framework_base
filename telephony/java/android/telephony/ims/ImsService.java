@@ -425,8 +425,8 @@ public class ImsService extends Service {
         }
     }
 
-    private IImsRcsFeature createRcsFeatureInternal(int slotId, int subId) {
-        RcsFeature f = createRcsFeatureForSubscription(slotId, subId);
+    private IImsRcsFeature createRcsFeatureInternal(int slotId, int subI) {
+        RcsFeature f = createRcsFeatureForSubscription(slotId, subI);
         if (f != null) {
             f.setDefaultExecutor(mExecutor);
             setupFeature(f, slotId, ImsFeature.FEATURE_RCS);
