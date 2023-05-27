@@ -931,6 +931,10 @@ final class DefaultPermissionGrantPolicy {
         grantSystemFixedPermissionsToSystemPackage(pm,"com.google.android.carriersetup", userId, PHONE_PERMISSIONS,
                 SMS_PERMISSIONS);
 
+        // Google Backup Transport
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.backuptransport", userId,
+                CONTACTS_PERMISSIONS);
+
         // Flipendo
         grantSystemFixedPermissionsToSystemPackage(pm,
                 getDefaultProviderAuthorityPackage("com.google.android.flipendo", userId),

@@ -69,6 +69,7 @@ public class PixelPropsUtils {
             "com.google.android.googlequicksearchbox",
             "com.android.chrome",
             "com.breel.wallpapers20",
+            "com.google.android.apps.wearables.maestro.companion",
             PACKAGE_PS
     };
 
@@ -85,7 +86,6 @@ public class PixelPropsUtils {
             "com.google.android.UltraCVM",
             "com.google.android.apps.cameralite",
             "com.google.android.apps.recorder",
-            "com.google.android.apps.wearables.maestro.companion",
             "com.google.android.apps.youtube.kids",
             "com.google.android.apps.youtube.music",
             "com.google.android.dialer",
