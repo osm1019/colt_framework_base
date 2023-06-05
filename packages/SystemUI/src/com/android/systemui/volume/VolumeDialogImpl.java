@@ -317,6 +317,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     // Variable to track the default row with which the panel is initially shown
     private VolumeRow mDefaultRow = null;
 
+    private FrameLayout mRoundedBorderBottom;
+
     // Volume panel expand state
     private boolean mExpanded;
 
@@ -665,6 +667,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mSettingsViewSpacer = mDialog.findViewById(R.id.settings_container_spacer);
         mSettingsIcon = mDialog.findViewById(R.id.settings);
         mSettingsIcon.setOnLongClickListener(this);
+
+        mRoundedBorderBottom = mDialog.findViewById(R.id.rounded_border_bottom);
 
         mExpandRowsView = mDialog.findViewById(R.id.expandable_indicator_container);
         mExpandRows = mDialog.findViewById(R.id.expandable_indicator);
@@ -1317,6 +1321,11 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     }
 
     private void initSettingsH(int lockTaskModeState) {
+        if (mRoundedBorderBottom != null) {
+            mRoundedBorderBottom.setVisibility(!mDeviceProvisionedController.isCurrentUserSetup() ||
+                    mActivityManager.getLockTaskModeState() != LOCK_TASK_MODE_NONE
+                    ? VISIBLE : GONE);
+        }
         if (mSettingsView != null) {
             mSettingsView.setVisibility(
                     mDeviceProvisionedController.isCurrentUserSetup() &&
@@ -2443,14 +2452,18 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                 if (row.anim == null) {
                     row.anim = ObjectAnimator.ofInt(row.slider, "progress", progress, newProgress);
                     row.anim.setInterpolator(new DecelerateInterpolator());
+                    row.anim.setDuration(UPDATE_ANIMATION_DURATION);
+                    row.anim.addListener(new AnimatorListenerAdapter() {
+		        @Override
+		        public void onAnimationEnd(Animator animation) {
+			    getJankListener(row.view, TYPE_UPDATE, UPDATE_ANIMATION_DURATION);
+		        }
+                    });
                 } else {
                     row.anim.cancel();
                     row.anim.setIntValues(progress, newProgress);
                 }
                 row.animTargetProgress = newProgress;
-                row.anim.setDuration(UPDATE_ANIMATION_DURATION);
-                row.anim.addListener(
-                        getJankListener(row.view, TYPE_UPDATE, UPDATE_ANIMATION_DURATION));
                 row.anim.start();
             } else {
                 // update slider directly to clamped value

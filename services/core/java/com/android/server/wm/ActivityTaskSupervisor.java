@@ -1782,9 +1782,13 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
         if (wasTrimmed) {
             // Task was trimmed from the recent tasks list -- remove the active task record as well
             // since the user won't really be able to go back to it
+<<<<<<< HEAD
 
             res = removeTaskById(task.mTaskId, killProcess, false /* removeFromRecents */,
 
+=======
+            res = removeTaskById(task.mTaskId, killProcess, false /* removeFromRecents */,
+>>>>>>> c390b817a8ed95a4b41aae29cd0a9a63a83fbecf
                     "recent-task-trimmed");
         }
         task.removedFromRecents();

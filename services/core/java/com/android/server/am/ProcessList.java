@@ -2521,6 +2521,10 @@ public final class ProcessList {
                 app.mPredecessor = predecessor;
                 predecessor.mSuccessor = app;
             }
+            if ((info.flags & PERSISTENT_MASK) == PERSISTENT_MASK) {
+                app.setPersistent(true);
+                app.mState.setMaxAdj(ProcessList.PERSISTENT_PROC_ADJ);
+            }
             checkSlow(startTime, "startProcess: done creating new process record");
         } else {
             // If this is a new package in the process, add the package to the list
@@ -2610,7 +2614,10 @@ public final class ProcessList {
                     + ", " + reason);
             app.setPendingStart(false);
             killProcessQuiet(pid);
-            Process.killProcessGroup(app.uid, app.getPid());
+            final int appPid = app.getPid();
+            if (appPid != 0) {
+                Process.killProcessGroup(app.uid, appPid);
+            }
             noteAppKill(app, ApplicationExitInfo.REASON_OTHER,
                     ApplicationExitInfo.SUBREASON_INVALID_START, reason);
             return false;
