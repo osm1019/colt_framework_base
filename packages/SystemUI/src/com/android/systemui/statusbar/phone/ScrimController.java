@@ -335,7 +335,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
         TunerService tunerService = Dependency.get(TunerService.class);
         tunerService.addTunable((key, newValue) -> {
             if (key.equals(QS_DUAL_TONE)) {
-            	mUseDualToneColor = TunerService.parseIntegerSwitch(newValue, true);
+            	mUseDualToneColor = TunerService.parseIntegerSwitch(newValue, false);
                 ScrimController.this.onThemeChanged();
             }
         }, QS_DUAL_TONE);
