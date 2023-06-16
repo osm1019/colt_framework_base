@@ -84,9 +84,16 @@ public class StateListDrawable extends DrawableContainer {
      */
     public void addState(int[] stateSet, Drawable drawable) {
         if (drawable != null) {
-            mStateListState.addStateSet(stateSet, drawable);
-            // in case the new state matches our current state...
-            onStateChange(getState());
+            if (drawable.getConstantState() != null) {
+                // Drawable has a constant state, use the old behavior
+                mStateListState.addStateSet(stateSet, drawable);
+                // In case the new state matches our current state...
+                onStateChange(getState());
+            } else {
+                Drawable newDrawable = drawable.mutate();  // Create a new mutable instance
+                mStateListState.addStateSet(stateSet, newDrawable);
+                onStateChange(getState());
+            }
         }
     }
 
