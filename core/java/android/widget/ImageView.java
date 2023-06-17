@@ -733,19 +733,29 @@ public class ImageView extends View {
     private void applyImageTint() {
         if (mDrawable != null && (mHasDrawableTint || mHasDrawableBlendMode)) {
             mDrawable = mDrawable.mutate();
+            try {
+                if (mHasDrawableTint) {
+                    mDrawable.setTintList(mDrawableTintList);
+                }
 
-            if (mHasDrawableTint) {
-                mDrawable.setTintList(mDrawableTintList);
-            }
+                if (mHasDrawableBlendMode) {
+                    mDrawable.setTintBlendMode(mDrawableBlendMode);
+                }
 
-            if (mHasDrawableBlendMode) {
-                mDrawable.setTintBlendMode(mDrawableBlendMode);
-            }
-
-            // The drawable (or one of its children) may not have been
-            // stateful before applying the tint, so let's try again.
-            if (mDrawable.isStateful()) {
-                mDrawable.setState(getDrawableState());
+                // The drawable (or one of its children) may not have been
+                // stateful before applying the tint, so let's try again.
+                if (mDrawable.isStateful()) {
+                    mDrawable.setState(getDrawableState());
+                }
+            } catch (RuntimeException e) {
+                Drawable newInstanceDrawable = mDrawable.mutate();
+                
+                mDrawable = newInstanceDrawable;
+                // The drawable (or one of its children) may not have been
+                // stateful before applying the tint, so let's try again.
+                if (mDrawable.isStateful()) {
+                    mDrawable.setState(getDrawableState());
+                }
             }
         }
     }
