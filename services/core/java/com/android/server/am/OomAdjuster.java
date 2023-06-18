@@ -97,6 +97,7 @@ import android.os.IBinder;
 import android.os.PowerManagerInternal;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Trace;
@@ -357,15 +358,22 @@ public class OomAdjuster {
         conditionallyEnableProactiveKills();
     }
 
-    void conditionallyEnableProactiveKills() {
-        File mglru = new File("/sys/kernel/mm/lru_gen/enabled");
-        File psi = new File("/proc/pressure/memory");
-        File lmk_kernel = new File("/sys/module/lowmemorykiller/parameters/minfree");
-
-        if (!lmk_kernel.exists() && mglru.exists() && psi.exists()) {
-            Slog.i(TAG, "Detected kernel with modern mm setup, enabling Proactive Kills.");
-            mProactiveKillsEnabled = true;
-        }
+    private boolean conditionallyEnableProactiveKills() {
+    	boolean isModernKernel = false;
+    	StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+    	try {
+            final File mglru = new File("/sys/kernel/mm/lru_gen/enabled");
+            final File psi = new File("/proc/pressure/memory");
+            final File lmk_kernel = new File("/sys/module/lowmemorykiller/parameters/minfree");
+            isModernKernel = !lmk_kernel.exists() && mglru.exists() && psi.exists();
+	} catch (Exception e) {
+	} finally {
+	    StrictMode.setThreadPolicy(oldPolicy);
+	}
+	if (DEBUG_OOM_ADJ) {
+	    Slog.i(TAG, "Detected kernel with " + (isModernKernel ? "modern" : "legacy") + " mm setup,  " + (isModernKernel ? "enabling" : "disabling") + " Proactive Kills.");
+	}
+	return isModernKernel;
     }
 
     void initSettings() {
@@ -3012,7 +3020,11 @@ public class OomAdjuster {
                 // {@link ProcessList.SCHED_GROUP_TOP_APP}. We don't check render thread because it
                 // is not ready when attaching.
                 app.getWindowProcessController().onTopProcChanged();
-                setThreadPriority(app.getPid(), THREAD_PRIORITY_TOP_APP_BOOST);
+                if (mService.mUseFifoUiScheduling) {
+                    mService.scheduleAsFifoPriority(app.getPid(), true);
+                } else {
+                    setThreadPriority(app.getPid(), THREAD_PRIORITY_TOP_APP_BOOST);
+                }
                 initialSchedGroup = ProcessList.SCHED_GROUP_TOP_APP;
             } catch (Exception e) {
                 Slog.w(TAG, "Failed to pre-set top priority to " + app + " " + e);

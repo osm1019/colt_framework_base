@@ -78,7 +78,11 @@ import java.util.Set;
 
 import javax.crypto.SecretKey;
 
+<<<<<<< HEAD
 
+=======
+import com.android.internal.util.custom.PixelPropsUtils;
+>>>>>>> 133e692321f0c1550dbd49bf4e413976f3ca4bdf
 
 /**
  * A java.security.KeyStore interface for the Android KeyStore. An instance of

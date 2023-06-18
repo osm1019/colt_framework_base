@@ -38,7 +38,7 @@ public class BluetoothUtils {
     private static final String TAG = "BluetoothUtils";
 
     public static final boolean V = false; // verbose logging
-    public static final boolean D = true;  // regular logging
+    public static final boolean D = false; // regular logging
 
     public static final int META_INT_ERROR = -1;
     public static final String BT_ADVANCED_HEADER_ENABLED = "bt_advanced_header_enabled";
@@ -276,6 +276,18 @@ public class BluetoothUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check if a device class matches with a defined BluetoothClass device.
+     *
+     * @param device Must be one of the public constants in {@link BluetoothClass.Device}
+     * @return true if device class matches, false otherwise.
+     */
+    public static boolean isDeviceClassMatched(@NonNull BluetoothDevice bluetoothDevice,
+            int device) {
+        return bluetoothDevice.getBluetoothClass() != null
+                && bluetoothDevice.getBluetoothClass().getDeviceClass() == device;
     }
 
     private static boolean isAdvancedHeaderEnabled() {

@@ -65,6 +65,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+<<<<<<< HEAD
+=======
+import com.android.internal.util.custom.PixelPropsUtils;
+>>>>>>> 133e692321f0c1550dbd49bf4e413976f3ca4bdf
 
 /**
  * Base class for implementing application instrumentation code.  When running

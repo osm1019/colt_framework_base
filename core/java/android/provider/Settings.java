@@ -96,6 +96,8 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 import com.android.internal.widget.ILockSettings;
 
+import com.android.internal.util.colt.HideDeveloperStatusUtils;
+
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -3854,6 +3856,9 @@ public final class Settings {
          * or not a valid integer.
          */
         public static int getInt(ContentResolver cr, String name, int def) {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             return getIntForUser(cr, name, def, cr.getUserId());
         }
 
@@ -3884,6 +3889,9 @@ public final class Settings {
          */
         public static int getInt(ContentResolver cr, String name)
                 throws SettingNotFoundException {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             return getIntForUser(cr, name, cr.getUserId());
         }
 
@@ -5856,8 +5864,20 @@ public final class Settings {
         public static final String TORCH_POWER_BUTTON_GESTURE = "torch_power_button_gesture";
 
         /**
+         * Whether the HighTouchPollingRate is activated or not.
+         * 0 = off, 1 = on
+         * @hide
+         */
+        public static final String HIGH_TOUCH_POLLING_RATE_ENABLE =
+                "high_touch_polling_rate_enable";
+
+        /**
          * Whether to disable the ripple animation on fingerprint unlock
          * @hide
+         * IMPORTANT: If you add a new public settings you also have to add it to
+         * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
+         * it to PRIVATE_SETTINGS below. Also add a validator that can validate
+         * the setting value. See an example above.
          */
         public static final String DISABLE_RIPPLE_EFFECT = "disable_ripple_effect";
 
@@ -7020,6 +7040,13 @@ public final class Settings {
         public static final String QS_DUAL_TONE = "qs_dual_tone";
 
         /**
+         * Whether to show the kill app button in notification guts
+         * @hide
+         */
+        public static final String NOTIFICATION_GUTS_KILL_APP_BUTTON =
+                "notification_guts_kill_app_button";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -7182,6 +7209,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(BATTERY_LIGHT_FULL_COLOR);
             PRIVATE_SETTINGS.add(BATTERY_LIGHT_REALLYFULL_COLOR);
             PRIVATE_SETTINGS.add(NAVIGATION_BAR_IME_SPACE);
+            PRIVATE_SETTINGS.add(HIGH_TOUCH_POLLING_RATE_ENABLE);
         }
 
         /**
@@ -7923,6 +7951,9 @@ public final class Settings {
          * or not a valid integer.
          */
         public static int getInt(ContentResolver cr, String name, int def) {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             return getIntForUser(cr, name, def, cr.getUserId());
         }
 
@@ -7953,6 +7984,9 @@ public final class Settings {
          */
         public static int getInt(ContentResolver cr, String name)
                 throws SettingNotFoundException {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             return getIntForUser(cr, name, cr.getUserId());
         }
 
@@ -12637,6 +12671,13 @@ public final class Settings {
         public static final String SCREEN_OFF_UDFPS_ENABLED = "screen_off_udfps_enabled";
 
         /**
+         * Control whether to hide ADB and Developer settings enable status.
+         * @hide
+         */
+        @Readable
+        public static final String HIDE_DEVELOPER_STATUS = "hide_developer_status";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -12890,6 +12931,28 @@ public final class Settings {
          * @hide
          */
         public static final String BRIGHTNESS_SLIDER_STYLE = "brightness_slider_style";
+
+        /**
+         * Indicates whether extra dim turns on automatically
+         * 0 = disabled (default)
+         * 1 = from sunset to sunrise
+         * 2 = custom time
+         * 3 = from sunset till a time
+         * 4 = from a time till sunrise
+         * @hide
+         */
+        @Readable
+        public static final String EXTRA_DIM_AUTO_MODE = "extra_dim_auto_mode";
+
+        /**
+         * The custom time extra dim should be on at
+         * Only relevant when {@link EXTRA_DIM_AUTO_MODE} is set to 2 and above
+         * 0 = Disabled (default)
+         * format: HH:mm,HH:mm (since,till)
+         * @hide
+         */
+        @Readable
+        public static final String EXTRA_DIM_AUTO_TIME = "extra_dim_auto_time";
 
         /**
          * These entries are considered common between the personal and the managed profile,
@@ -17518,14 +17581,6 @@ public final class Settings {
         @Readable
         public static final String SAFE_BOOT_DISALLOWED = "safe_boot_disallowed";
 
-
-       /**
-         * Whether to wake the display when plugging or unplugging the charger
-         *
-         * @hide
-         */
-        public static final String WAKE_WHEN_PLUGGED_OR_UNPLUGGED = "wake_when_plugged_or_unplugged";
-
         /**
          * Indicates whether this device is currently in retail demo mode. If true, the device
          * usage is severely limited.
@@ -18176,6 +18231,9 @@ public final class Settings {
          * or not a valid integer.
          */
         public static int getInt(ContentResolver cr, String name, int def) {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             String v = getString(cr, name);
             return parseIntSettingWithDefault(v, def);
         }
@@ -18200,6 +18258,9 @@ public final class Settings {
          */
         public static int getInt(ContentResolver cr, String name)
                 throws SettingNotFoundException {
+            if (HideDeveloperStatusUtils.shouldHideDevStatus(cr.getCallingContext(), cr.getPackageName(), name)) {
+                return 0 /* Disabled */;
+            }
             String v = getString(cr, name);
             return parseIntSetting(v, name);
         }

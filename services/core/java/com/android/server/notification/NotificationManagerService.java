@@ -2328,7 +2328,6 @@ public class NotificationManagerService extends SystemService {
                 mAppOps,
                 new SysUiStatsEvent.BuilderFactory(),
                 mShowReviewPermissionsNotification);
-        mPreferencesHelper.updateFixedImportance(mUm.getUsers());
         mRankingHelper = new RankingHelper(getContext(),
                 mRankingHandler,
                 mPreferencesHelper,
@@ -2771,6 +2770,9 @@ public class NotificationManagerService extends SystemService {
             maybeShowInitialReviewPermissionsNotification();
         } else if (phase == SystemService.PHASE_ACTIVITY_MANAGER_READY) {
             mSnoozeHelper.scheduleRepostsForPersistedNotifications(System.currentTimeMillis());
+        } else if (phase == SystemService.PHASE_DEVICE_SPECIFIC_SERVICES_READY) {
+            mPreferencesHelper.updateFixedImportance(mUm.getUsers());
+            mPreferencesHelper.migrateNotificationPermissions(mUm.getUsers());
         }
     }
 
@@ -6513,13 +6515,14 @@ public class NotificationManagerService extends SystemService {
                 callingUid, incomingUserId, true, false, "enqueueNotification", pkg);
         final UserHandle user = UserHandle.of(userId);
 
-        // Can throw a SecurityException if the calling uid doesn't have permission to post
+        // ensure opPkg is delegate if the calling uid doesn't have permission to post
         // as "pkg"
         final int notificationUid = resolveNotificationUid(opPkg, pkg, callingUid, userId);
 
         if (notificationUid == INVALID_UID) {
-            throw new SecurityException("Caller " + opPkg + ":" + callingUid
-                    + " trying to post for invalid pkg " + pkg + " in user " + incomingUserId);
+            Slog.w(TAG, opPkg + ":" + callingUid + " doesn't have permission to post notification "
+                    + "for nonexistent pkg " + pkg + " in user " + userId);
+            return;
         }
 
         checkRestrictedCategories(notification);
@@ -6902,8 +6905,7 @@ public class NotificationManagerService extends SystemService {
             return targetUid;
         }
 
-        throw new SecurityException("Caller " + callingPkg + ":" + callingUid
-                + " cannot post for pkg " + targetPkg + " in user " + userId);
+        return INVALID_UID;
     }
 
     public boolean hasFlag(final int flags, final int flag) {
